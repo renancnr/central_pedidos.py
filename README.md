@@ -15,8 +15,12 @@ investigaçao e correção dos problemas
 1. A variável que define o limite é MAXIMO_SIMULTANEO.
 2. O valor anterior era 3.
 3. Alterei o valor para 2 e corrigi os erros que impediam o script de funcionar.
-
-problema B - replicaçao e consistência 
-orrigi a função sincronizar(): agora ela copia principal["estoque"] para replica["estoque"]. O problema era que o código original copiava a réplica para ela mesma, mantendo o valor antigo.
+  1. A função de sincronização é sincronizar().
+2. A instrução correta para atualizar a réplica é:
+   replica["estoque"] = principal["estoque"]
+3. A réplica não recebia o valor atualizado porque a instrução original copiava o estoque dela mesma:
+   replica["estoque"] = replica["estoque"]
+   Assim, o valor antigo permanecia igual.
+4. Corrigi a instrução para copiar o estoque do servidor principal para a réplica. Depois dos três pedidos, ambos ficam com 7 unidades.
 
   
