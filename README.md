@@ -5,104 +5,81 @@
 
 ## ETAPAS 1 E 2 – PROBLEMA AB
 
-### Resultados esperados
+### Resultados
 
-| Informação | Resultado |
+| Item | Resposta |
 |---|---:|
-| Estoque inicial | 10 |
+| Estoque inicial | 10 unidades |
 | Limite de pedidos simultâneos | 3 |
 | Pedidos confirmados | 101, 102 e 103 |
-| Estoque do servidor principal | 7 |
-| Estoque da réplica antes da sincronização | 10 |
-| Estoque da réplica depois da sincronização | 7 |
-| Consulta após falha do principal | `("REPLICA", 7)` |
+| Estoque do servidor principal após os pedidos | 7 unidades |
+| Estoque da réplica antes da sincronização | 10 unidades |
+| Estoque da réplica depois da sincronização | 7 unidades |
+| Consulta após a falha do servidor principal | `("REPLICA", 7)` |
 
-## ETAPA 3 – PROBLEMA A: INVESTIGAÇÃO E CORREÇÃO DOS PROBLEMAS
+**Explicação:** os três pedidos foram processados e consumiram uma unidade cada. Por isso, o estoque do servidor principal passou de 10 para 7. Antes da sincronização, a réplica ainda armazenava o valor antigo (10). Depois da sincronização, ela também passou a armazenar 7.
 
-A variável responsável por definir o limite de processamento simultâneo é `MAXIMO_SIMULTANEO`.
+## ETAPA 3 – PROBLEMA A: IDENTIFICAÇÃO E CORREÇÃO DOS ERROS
 
-- Limite utilizado no programa: **3 pedidos simultâneos**.
-- Os erros de sintaxe, importação, indentação e estrutura das funções foram corrigidos.
-- O limite foi mantido em 3 para corresponder aos resultados registrados nas Etapas 1 e 2.
+**1. Qual variável define o limite de pedidos simultâneos?**
 
-A função responsável pela sincronização é `sincronizar()`.
+A variável é `MAXIMO_SIMULTANEO`, configurada com o valor **3**.
 
-A instrução correta para atualizar a réplica é:
+**2. Qual função realiza a sincronização entre o servidor principal e a réplica?**
 
-```python
-replica["estoque"] = principal["estoque"]
-```
+A função é `sincronizar()`.
 
-A instrução incorreta copiava o estoque da réplica para ela mesma:
+**3. Qual era o erro na instrução de sincronização e como deve ser corrigido?**
+
+A instrução incorreta copiava o valor da réplica para ela mesma:
 
 ```python
 replica["estoque"] = replica["estoque"]
 ```
 
-Assim, o valor antigo permanecia inalterado. A correção faz com que o estoque atualizado do servidor principal seja copiado para a réplica. Após os três pedidos, ambos ficam com 7 unidades.
-
-## ETAPA 4 – VALIDAÇÃO DO PROGRAMA
-
-A função responsável pela replicação dos dados é `sincronizar()`.
-
-A instrução original copiava o estoque da réplica para ela mesma, impedindo a atualização. Ela foi corrigida para copiar o valor do servidor principal:
+A forma correta copia o estoque atualizado do servidor principal para a réplica:
 
 ```python
 replica["estoque"] = principal["estoque"]
 ```
 
-A sincronização é executada depois que todas as threads terminam o processamento dos pedidos. Dessa forma, a réplica recebe o estoque atualizado do servidor principal.
+**4. O que a correção resolve?**
 
-O programa também simula a falha do servidor principal. Quando isso acontece, a função `consultar_estoque()` consulta a réplica, que retorna o valor sincronizado.
+Ela permite que a réplica receba o valor atualizado do estoque. Após os três pedidos, o estoque do principal é 7 e, depois da sincronização, o estoque da réplica também passa a ser 7.
+
+## ETAPA 4 – VALIDAÇÃO DO PROGRAMA
+
+A sincronização correta é realizada pela função `sincronizar()`, que copia o estoque do servidor principal para a réplica:
+
+```python
+replica["estoque"] = principal["estoque"]
+```
+
+A sincronização ocorre após o término do processamento dos pedidos. Assim, a réplica recebe o valor atualizado. Quando o servidor principal fica indisponível, a função `consultar_estoque()` utiliza a réplica, desde que ela esteja online.
+
+**Resultado da consulta após a falha do servidor principal:** `("REPLICA", 7)`.
 
 ## ETAPA 5 – ANÁLISE TÉCNICA
 
-### 1. Semáforo
+**1. Qual é a função do semáforo no programa?**
 
-O semáforo limita a quantidade de pedidos que podem estar em processamento simultaneamente. Neste programa, o limite é de três threads.
+O semáforo controla o acesso concorrente e limita a quantidade de pedidos que podem ser processados simultaneamente. Neste programa, o limite configurado é de **3**.
 
-### 2. Sincronização
+**2. Qual é a importância da sincronização da réplica?**
 
-A sincronização mantém a réplica atualizada. Ela copia o estoque do servidor principal depois do processamento dos pedidos, permitindo que a réplica seja utilizada em caso de falha do principal.
+A sincronização mantém a réplica atualizada com os dados do servidor principal. Dessa forma, ela pode ser utilizada como alternativa de consulta quando o servidor principal fica indisponível.
 
-### 3. Tolerância a falhas
+**3. O que significa tolerância a falhas neste contexto?**
 
-É a capacidade de um sistema continuar oferecendo determinado serviço mesmo quando um componente falha. No programa, quando o servidor principal fica offline, a consulta utiliza a réplica, desde que ela esteja disponível.
+É a capacidade de continuar oferecendo o serviço mesmo quando um componente apresenta falha. No programa, se o servidor principal ficar offline e a réplica estiver disponível, a consulta é realizada na réplica.
 
-### 4. Bloqueio (Lock)
+**4. Qual é a função do Lock?**
 
-O bloqueio protege a região crítica que acessa e altera o estoque. Assim, apenas uma thread por vez executa essa operação protegida, evitando condições de corrida.
+O Lock protege a região crítica que acessa e modifica o estoque. Ele garante que apenas uma thread por vez execute essa parte protegida, evitando condições de corrida e alterações conflitantes.
 
-### 5. Momento da sincronização
+**5. Em que momento a sincronização deve acontecer?**
 
-A sincronização acontece depois que todas as threads concluem os pedidos. Isso permite copiar para a réplica o estoque já atualizado no servidor principal.
-
----
-
-## COMO EXECUTAR
-
-É necessário ter Python 3 instalado. O programa utiliza apenas bibliotecas padrão do Python.
-
-No terminal, dentro da pasta do projeto, execute:
-
-```bash
-python central_pedidos.py
-```
-
-## RESULTADO ESPERADO
-
-```text
-=== CENTRAL DE PEDIDOS ===
-Limite simultaneo: 3
-Estoque inicial: 10
-Pedidos confirmados: [101, 102, 103]
-Estoque principal: 7
-Replica antes: 10
-Replica depois: 7
-Consulta apos falha: ('REPLICA', 7)
-```
-
-**Observação:** este projeto é uma simulação didática de concorrência, replicação de estoque e tolerância a falhas. Os servidores principal e réplica são estruturas em memória, não servidores distribuídos reais.
+Após o término do processamento dos pedidos. Assim, a réplica recebe o valor final e atualizado do estoque do servidor principal.
 
 ---
 
