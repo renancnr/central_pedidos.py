@@ -1,7 +1,8 @@
-| Item | Resultado |
+Etapa 1 da prova 
+| Informação | Resultado |
 |---|---:|
 | Estoque inicial | 10 |
-| Limite de processamento simultâneo | 3 |
+| Limite simultâneo | 3 |
 | Pedidos confirmados | 101, 102 e 103 |
 | Estoque do servidor principal | 7 |
 | Estoque da réplica antes da sincronização | 10 |
