@@ -1,86 +1,101 @@
-# P2 – SISTEMAS DISTRIBUÍDOS
+# P2 - Sistemas Distribuídos
 
-**Aluno:** Renan dos Santos Carneiro  
-**Semestre:** 3º semestre
+**Aluno(a):** Renan dos Santos Carneiro  
+**Professora:** Simone Tatiane do Canto  
+**Data:** 18/11/2026
 
-## ETAPAS 1 E 2 – PROBLEMA AB
+## 1. Situação-problema
 
-### Resultados
+A Central de Pedidos apresentava três problemas: permitia três pedidos ao mesmo tempo, a réplica não recebia o estoque atualizado e a consulta não utilizava corretamente a réplica quando o servidor principal falhava.
 
-| Item | Resposta |
-|---|---:|
-| Estoque inicial | 10 unidades |
-| Limite de pedidos simultâneos | 3 |
-| Pedidos confirmados | 101, 102 e 103 |
-| Estoque do servidor principal após os pedidos | 7 unidades |
-| Estoque da réplica antes da sincronização | 10 unidades |
-| Estoque da réplica depois da sincronização | 7 unidades |
-| Consulta após a falha do servidor principal | `("REPLICA", 7)` |
+## 2. Primeira execução
 
-**Explicação:** os três pedidos foram processados e consumiram uma unidade cada. Por isso, o estoque do servidor principal passou de 10 para 7. Antes da sincronização, a réplica ainda armazenava o valor antigo (10). Depois da sincronização, ela também passou a armazenar 7.
+Na primeira execução, o programa mostrava o estoque inicial de 10 unidades e processava os três pedidos. O limite de processamento estava configurado como 3.
 
-## ETAPA 3 – PROBLEMA A: IDENTIFICAÇÃO E CORREÇÃO DOS ERROS
+**Evidência 1:** adicionar a captura da primeira execução, antes das correções, em `evidencias/evidencia1.png`.
 
-**1. Qual variável define o limite de pedidos simultâneos?**
+## 3. Problema A - Concorrência
 
-A variável é `MAXIMO_SIMULTANEO`, configurada com o valor **3**.
+**Qual problema foi identificado?**
 
-**2. Qual função realiza a sincronização entre o servidor principal e a réplica?**
+O limite estava configurado para permitir três pedidos simultâneos, mas a regra da empresa permite apenas dois.
 
-A função é `sincronizar()`.
+**Qual alteração foi realizada?**
 
-**3. Qual era o erro na instrução de sincronização e como deve ser corrigido?**
+O valor de `MAXIMO_SIMULTANEO` foi alterado de 3 para 2. Os três pedidos continuam sendo processados, mas no máximo dois ao mesmo tempo.
 
-A instrução incorreta copiava o valor da réplica para ela mesma:
+**Evidência 2:** adicionar a captura da execução após a alteração em `evidencias/evidencia2.png`.
 
-```python
-replica["estoque"] = replica["estoque"]
-```
+## 4. Problema B - Replicação e consistência
 
-A forma correta copia o estoque atualizado do servidor principal para a réplica:
+**Qual problema foi identificado?**
+
+A réplica continuava com o estoque antigo porque a função de sincronização copiava o valor dela mesma.
+
+**Qual alteração foi realizada?**
+
+Na função `sincronizar()`, a atribuição foi corrigida para copiar o estoque do servidor principal:
 
 ```python
 replica["estoque"] = principal["estoque"]
 ```
 
-**4. O que a correção resolve?**
+**Evidência 3:** adicionar a captura mostrando o estoque principal e o da réplica após a sincronização em `evidencias/evidencia3.png`.
 
-Ela permite que a réplica receba o valor atualizado do estoque. Após os três pedidos, o estoque do principal é 7 e, depois da sincronização, o estoque da réplica também passa a ser 7.
+## 5. Problema C - Tolerância a falhas
 
-## ETAPA 4 – VALIDAÇÃO DO PROGRAMA
+**Qual problema foi identificado?**
 
-A sincronização correta é realizada pela função `sincronizar()`, que copia o estoque do servidor principal para a réplica:
+A consulta não verificava corretamente se a réplica estava disponível quando o servidor principal ficava offline.
 
-```python
-replica["estoque"] = principal["estoque"]
-```
+**Qual alteração foi realizada?**
 
-A sincronização ocorre após o término do processamento dos pedidos. Assim, a réplica recebe o valor atualizado. Quando o servidor principal fica indisponível, a função `consultar_estoque()` utiliza a réplica, desde que ela esteja online.
+A função `consultar_estoque()` foi ajustada para consultar o principal quando estiver online e utilizar a réplica quando o principal estiver indisponível.
 
-**Resultado da consulta após a falha do servidor principal:** `("REPLICA", 7)`.
+**Evidência 4:** adicionar a captura da consulta após a falha do servidor principal em `evidencias/evidencia4.png`.
 
-## ETAPA 5 – ANÁLISE TÉCNICA
+## 6. Validação do programa
 
-**1. Qual é a função do semáforo no programa?**
+Após as três correções, o programa deve apresentar limite simultâneo de 2, confirmar os pedidos 101, 102 e 103, atualizar o estoque principal para 7, sincronizar a réplica para 7 e consultar a réplica após a falha do principal.
 
-O semáforo controla o acesso concorrente e limita a quantidade de pedidos que podem ser processados simultaneamente. Neste programa, o limite configurado é de **3**.
+**Evidência 5:** adicionar a captura da execução completa em `evidencias/evidencia5.png`.
 
-**2. Qual é a importância da sincronização da réplica?**
+## 7. Análise técnica
 
-A sincronização mantém a réplica atualizada com os dados do servidor principal. Dessa forma, ela pode ser utilizada como alternativa de consulta quando o servidor principal fica indisponível.
+### Questão 1
 
-**3. O que significa tolerância a falhas neste contexto?**
+**Qual é a função do semáforo no processamento dos pedidos?**
 
-É a capacidade de continuar oferecendo o serviço mesmo quando um componente apresenta falha. No programa, se o servidor principal ficar offline e a réplica estiver disponível, a consulta é realizada na réplica.
+O semáforo controla quantos pedidos podem ser processados ao mesmo tempo. Neste programa, permite no máximo dois.
 
-**4. Qual é a função do Lock?**
+### Questão 2
 
-O Lock protege a região crítica que acessa e modifica o estoque. Ele garante que apenas uma thread por vez execute essa parte protegida, evitando condições de corrida e alterações conflitantes.
+**Por que é necessário sincronizar os dados entre o servidor principal e a réplica?**
 
-**5. Em que momento a sincronização deve acontecer?**
+Para manter os dois servidores com o mesmo estoque atualizado. Assim, a réplica pode ser usada quando o principal falhar.
 
-Após o término do processamento dos pedidos. Assim, a réplica recebe o valor final e atualizado do estoque do servidor principal.
+### Questão 3
 
----
+**O que significa tolerância a falhas e como ela aparece neste programa?**
 
-**P2 – SISTEMAS DISTRIBUÍDOS**
+É quando o sistema continua funcionando mesmo com a falha de um servidor. Aqui, a consulta usa a réplica quando o servidor principal fica offline.
+
+### Questão 4
+
+**Para que serve o Lock no programa e como ajuda a prevenir problemas de concorrência?**
+
+O Lock protege o acesso ao estoque. Ele evita que duas threads alterem esse valor ao mesmo tempo.
+
+### Questão 5
+
+**A sincronização do estoque deve acontecer antes ou depois do processamento dos pedidos? Explique a relação de causalidade.**
+
+Deve acontecer depois do processamento. Primeiro os pedidos alteram o estoque principal e, em seguida, a réplica recebe o valor atualizado.
+
+## 8. Conclusão
+
+Com esta atividade, aprendi como controlar pedidos simultâneos usando semáforo e Lock. Também entendi a importância de manter a réplica atualizada. A simulação mostrou como ela pode ajudar quando o servidor principal fica indisponível.
+
+## 9. Entrega
+
+**Aluno(a):** Renan dos Santos Carneiro
