@@ -15,3 +15,8 @@ investigaçao e correção dos problemas
 1. A variável que define o limite é MAXIMO_SIMULTANEO.
 2. O valor anterior era 3.
 3. Alterei o valor para 2 e corrigi os erros que impediam o script de funcionar.
+
+problema B - replicaçao e consistência 
+orrigi a função sincronizar(): agora ela copia principal["estoque"] para replica["estoque"]. O problema era que o código original copiava a réplica para ela mesma, mantendo o valor antigo.
+
+  
