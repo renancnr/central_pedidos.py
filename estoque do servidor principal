@@ -1,1 +1,3 @@
-o estoque do servidor principal e 7
+Estoque do servidor principal após o processamento dos três pedidos: 7 unidades.
+
+Cálculo: 10 unidades iniciais - 3 pedidos confirmados (1 unidade por pedido) = 7 unidades.
