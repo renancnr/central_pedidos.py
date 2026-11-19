@@ -1,1 +1,3 @@
-limite de processamento simultaneo [3]
+Limite de processamento simultâneo: 3 pedidos.
+
+Esse valor é definido pela variável MAXIMO_SIMULTANEO e utilizado na criação do semáforo: threading.Semaphore(MAXIMO_SIMULTANEO).
