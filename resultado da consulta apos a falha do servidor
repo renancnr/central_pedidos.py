@@ -1,1 +1,5 @@
-Consulta após falha do principal	("REPLICA", 7)
+Resultado da consulta após a falha do servidor principal:
+
+("REPLICA", 7)
+
+A consulta foi direcionada à réplica porque o servidor principal estava offline. A réplica estava disponível e havia sido sincronizada, por isso retornou o estoque atualizado de 7 unidades.
