@@ -1,3 +1,6 @@
+P2 SISTEMAS DISTRIBUIDOS
+RENAN DOS SANTOS CARNEIRO 3 semestre
+
 ETAPA 1 e 2 
 PROBLEMA A B 
 | Informação | Resultado |
