@@ -1,1 +1,4 @@
-Estoque da réplica antes da sincronização	10
+Estoque da réplica antes da sincronização: 10 unidades.
+Estoque da réplica depois da sincronização: 7 unidades.
+
+Explicação: antes da sincronização, a réplica ainda contém o estoque inicial. Depois que a função sincronizar() copia o valor atualizado do servidor principal, a réplica passa a registrar 7 unidades.
