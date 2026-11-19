@@ -1,4 +1,10 @@
- Resultado esperado
-Com três pedidos (101, 102 e 103):
+Resultado esperado após o processamento dos três pedidos (101, 102 e 103):
+
 - Pedidos confirmados: 101, 102 e 103.
-- Estoque principal: 7.
+- Estoque inicial: 10 unidades.
+- Estoque do servidor principal após os pedidos: 7 unidades.
+- Estoque da réplica antes da sincronização: 10 unidades.
+- Estoque da réplica depois da sincronização: 7 unidades.
+- Consulta após a falha do servidor principal: ("REPLICA", 7).
+
+Cálculo do estoque: 10 - 3 = 7 unidades.
