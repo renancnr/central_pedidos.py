@@ -1,4 +1,5 @@
 Etapa 1 e 2 da prova 
+PROBLEMA A B 
 | Informação | Resultado |
 |---|---:|
 | Estoque inicial | 10 |
@@ -10,7 +11,7 @@ Etapa 1 e 2 da prova
 | Consulta após falha do principal | `("REPLICA", 7)` |
 
 
-etapa 3
+etapa 3 problema A
 investigaçao e correção dos problemas 
 1. A variável que define o limite é MAXIMO_SIMULTANEO.
 2. O valor anterior era 3.
