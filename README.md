@@ -1,4 +1,4 @@
-Etapa 1 da prova 
+Etapa 1 e 2 da prova 
 | Informação | Resultado |
 |---|---:|
 | Estoque inicial | 10 |
